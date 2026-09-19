@@ -1,5 +1,5 @@
 import { Action, ActionPanel, Color, Icon, List, showToast, Toast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { showFailureToast, useCachedPromise } from "@raycast/utils";
 import { glimpse, ModelEntry } from "./glimpse";
 
 export default function Command() {
@@ -24,22 +24,12 @@ export default function Command() {
     }
   }
 
-  async function installAndActivate(model: ModelEntry) {
-    const toast = await showToast({
-      style: Toast.Style.Animated,
-      title: `Downloading ${model.label}…`,
-    });
+  // The CLI can't download models, so hand that off to Glimpse's Models page.
+  async function openModels() {
     try {
-      // model install downloads to the local model cache; can take a while.
-      await glimpse(["model", "install", model.key]);
-      await glimpse(["model", "set", model.key]);
-      toast.style = Toast.Style.Success;
-      toast.title = `Active model: ${model.label}`;
-      revalidate();
+      await glimpse(["open", "models"]);
     } catch (error) {
-      toast.style = Toast.Style.Failure;
-      toast.title = "Glimpse";
-      toast.message = (error as Error).message;
+      await showFailureToast(error, { title: "Couldn't open Glimpse" });
     }
   }
 
@@ -72,7 +62,7 @@ export default function Command() {
                 {ready ? (
                   <Action title="Use Model" icon={Icon.Check} onAction={() => activate(model)} />
                 ) : (
-                  <Action title="Download and Use" icon={Icon.Download} onAction={() => installAndActivate(model)} />
+                  <Action title="Download in Glimpse" icon={Icon.Download} onAction={openModels} />
                 )}
                 <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={() => revalidate()} />
               </ActionPanel>

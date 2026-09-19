@@ -34,6 +34,8 @@ function childEnv(): NodeJS.ProcessEnv {
     USER: process.env.USER || userInfo().username,
     HOME: process.env.HOME || homedir(),
     PATH: path.join(":"),
+    // Tells Glimpse's usage analytics the command came from Raycast.
+    GLIMPSE_CLIENT: "raycast",
   };
 }
 
